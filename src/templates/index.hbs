@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark ">
+    <a class="navbar-brand" href="/">Registar NBA igraca</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse " id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link active" href="/">Pocetna <span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="/edit">Uredjivanje</a>
+            <a class="nav-item nav-link" href="/add">Dodaj</a>
+
+        </div>
+
+        <input class="form-control ml-5 mr-sm-2 w-25" type="search" placeholder="Unesite ime ili prezime"
+               id="podaci">
+        <button class="btn btn-outline-light my-2  my-sm-0 d-inline-block mr-sm-2" id="search">Pretraga</button>
+        <select class="form-control col-2 " id="izbor" onchange="zameniSearch(this)">
+            <option value="imeprezime">Ime ili prezime</option>
+            <option value="klub">Klub</option>
+            <option value="pozicija">Pozicija</option>
+        </select>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        {{#if igrac}}
+            {{#each igrac}}
+                {{#if this.visible}}
+                    <div class="col-md-3 my-4 mx-4 ">
+                        <div class="card" style="width: 18rem;">
+                            <img src="{{this.slika}}" class="card-img-top" alt="{{this.ime}} {{this.prezime}}" onerror="imgError(this);"
+                                 style="height: 209px; width: 286px;">
+                            <div class="card-body">
+                                <p class="card-text">Ime: {{this.ime}}</p>
+                                <p class="card-text">Prezime: {{this.prezime}}</p>
+                                <p class="card-text">Klub: {{this.klub}}</p>
+                                <p class="card-text">Pozicija: {{this.pozicija}}</p>
+                                <p class="card-text">Broj dresa: #{{this.dres}}</p>
+                                <p class="card-text">Visina: {{this.visina}}m</p>
+                                <p class="card-text">Tezina: {{this.tezina}}kg</p>
+                                <p class="card-text">Datum rodjenja: {{this.datRodj}}</p>
+                            </div>
+                        </div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        {{/if}}
+
+    </div>
+</div>
+<script>
+    let dgm = document.querySelector("#search");
+    let podaci = document.querySelector("#podaci");
+    let prikaz = document.querySelector(".row");
+    let izbor = document.querySelector("#izbor");
+
+    dgm.onclick = function () {
+        if (podaci.value.trim() == "") location.reload();
+        prikaz.innerHTML = "";
+        $.ajax({
+            url: "/api/find",
+            method: "post",
+            data: {"sample": izbor.value + "█" + podaci.value.trim()},
+            success: function (response) {
+                let igraci = JSON.parse(response);
+                for (i of igraci) {
+                    if (i.visible) {
+                        prikaz.innerHTML += `<div class="col-md-3 my-4 mx-4">
+                        <div class="card" style="width: 18rem;">
+                            <img src="${i.slika}" class="card-img-top" alt="${i.ime} ${i.prezime}" style="height: 209px; width: 286px;" onerror="imgError(this);">
+                            <div class="card-body">
+                                <p class="card-text">Ime: ${i.ime}</p>
+                                <p class="card-text">Prezime: ${i.prezime}</p>
+                                <p class="card-text">Klub: ${i.klub}</p>
+                                <p class="card-text">Pozicija: ${i.pozicija}</p>
+                                <p class="card-text">Broj dresa: ${i.dres}</p>
+                                <p class="card-text">Visina: ${i.visina}m</p>
+                                <p class="card-text">Tezina: ${i.tezina}kg</p>
+                                <p class="card-text">Datum rodjenja: ${i.datRodj}</p>
+                            </div>
+                        </div>
+                    </div>`;
+                    }
+                }
+            }
+        })
+    }
+
+    function zameniSearch(obj) {
+        podaci.placeholder = "";
+        if (obj.value == "imeprezime") podaci.placeholder = "Unesite ime ili prezime";
+        else if (obj.value == "klub") podaci.placeholder = "Unesite naziv kluba";
+        else if (obj.value == "pozicija") podaci.placeholder = "Unesite poziciju igraca";
+    }
+
+    function imgError(image) {
+        image.onerror = "";
+        image.src = "http://127.0.0.1:5000/img/default.png";
+        return true;
+    }
+</script>
+</body>
+
+</html>

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/">Registar NBA igraca</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link " href="/">Pocetna <span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link active" href="/edit">Uredjivanje</a>
+            <a class="nav-item nav-link" href="/add">Dodaj</a>
+        </div>
+    </div>
+</nav>
+<div class="container">
+    <div class="row">
+
+        {{#if zaIzmenu}}
+            {{#each zaIzmenu}}
+                <div class="col-md-3 my-4 mx-4">
+                    <div class="card" style="width: 18rem;">
+                        <img src="{{this.slika}}" class="card-img-top" alt="{{this.ime}} {{this.prezime}}" style="height: 209px; width: 286px;" onerror="imgError(this);">
+                        <div class="card-body">
+                            <p class="card-text">Ime: <input type="text" id="ime" class="form-control"
+                                                             placeholder="Unesite me" value="{{this.ime}}"></p>
+                            <p class="card-text">Prezime: <input type="text" id="prezime" class="form-control"
+                                                                 placeholder="Unesite prezime" value="{{this.prezime}}">
+                            </p>
+                            <p class="card-text">Klub: <input type="text" id="klub" class="form-control"
+                                                              placeholder="Unesite naziv kluba" value="{{this.klub}}">
+                            </p>
+                            <p class="card-text">Pozicija: <input type="text" id="pozicija" class="form-control"
+                                                                  placeholder="Unesite poziciju igraca"
+                                                                  value="{{this.pozicija}}"></p>
+                            <p class="card-text">Broj dresa: <input type="number" id="dres" min="0" max="99"
+                                                                    class="form-control"
+                                                                    placeholder="Unesite broj dresa"
+                                                                    value="{{this.dres}}"></p>
+                            <p class="card-text">Visina: <input type="text" id="visina" class="form-control"
+                                                                placeholder="npr. 1.94" value="{{this.visina}}"></p>
+                            <p class="card-text">Tezina: <input type="text" id="tezina" class="form-control"
+                                                                placeholder="npr. 98.4" value="{{this.tezina}}"></p>
+                            <p class="card-text">Datum rodjenja: <input type="text" id="datRodj" class="form-control"
+                                                                        placeholder="dd/mm/gggg"
+                                                                        value="{{this.datRodj}}"></p>
+                            <p class="card-text">Link slike <input type="text" id="slika" class="form-control"
+                                                                   placeholder="Ostaviti prazno za default sliku"
+                                                                   value="{{this.slika}}"></p>
+                            Vidljiv: <input type="checkbox" id="visible" {{#if this.visible}}checked{{/if}}>
+                            <input id="id" value="{{this.id}}" hidden>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <button class="btn btn-primary" id="save">Sacuvaj izmene</button>
+                            <button type="reset" class="btn btn-outline-primary" onclick="window.location.reload()">
+                                Ponisti
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
+        {{/if}}
+    </div>
+</div>
+<script>
+    let dugme = document.querySelector("#save");
+    let pod0= document.querySelector("#id");
+    let pod1 = document.querySelector("#ime");
+    let pod2 = document.querySelector("#prezime");
+    let pod3 = document.querySelector("#klub");
+    let pod4 = document.querySelector("#pozicija");
+    let pod5 = document.querySelector("#dres");
+    let pod6 = document.querySelector("#visina");
+    let pod7 = document.querySelector("#tezina");
+    let pod8 = document.querySelector("#datRodj");
+    let pod9 = document.querySelector("#slika");
+    let pod10 = document.querySelector("#visible");
+
+    dugme.onclick = function () {
+        if(pod9.value.trim()=="") pod9.value="http://127.0.0.1:5000/img/default.png";
+        let podaci = {
+
+            "id": pod0.value,
+            "ime": pod1.value.trim(),
+            "prezime": pod2.value.trim(),
+            "klub": pod3.value.trim(),
+            "pozicija": pod4.value.trim(),
+            "dres": pod5.value,
+            "visina": pod6.value,
+            "tezina": pod7.value,
+            "datRodj": pod8.value,
+            "slika": pod9.value.trim(),
+            "visible": pod10.checked
+
+        }
+        $.ajax({
+            url: "/api/uredi",
+            method: "post",
+            data: {"data":JSON.stringify(podaci)},
+            success: function (response) {
+                console.log(response);
+                alert(response);
+                location.reload();
+            }
+
+        })
+    }
+
+    function imgError(image) {
+        image.onerror = "";
+        image.src = "http://127.0.0.1:5000/img/default.png";
+        return true;
+    }
+</script>
+</body>
+
+</html>
